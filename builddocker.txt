@@ -1,0 +1,4 @@
+docker build -t asoc_sast_linux .
+docker tag asoc_sast_linux <YOUR_DOCKERHUB>/bitbucket_asoc_sast:linux
+docker push <YOUR_DOCKERHUB>/bitbucket_asoc_sast:linux
+
