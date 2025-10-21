@@ -6,3 +6,5 @@ RUN curl https://cloud.appscan.com/api/v4/Tools/SAClientUtil?os=linux > SAClient
 RUN unzip SAClientUtil.zip
 RUN rm -f SAClientUtil.zip
 RUN mv SAClientUtil.* SAClientUtil
+COPY scripts /
+
