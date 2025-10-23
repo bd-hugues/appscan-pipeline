@@ -17,15 +17,15 @@ if ! [ -x "$(command -v appscan.sh)" ]; then
 fi
 
 appscan.sh version
-appscan.sh update -acceptssl
+# appscan.sh update -acceptssl
 
 # Generate IRX files based on source root folder downloaded by Gitlab
 if [ "$scoScan" = 'yes' ]; then
   echo "AppScan Prepare using SCO parameter.";
-  appscan.sh prepare -es -sco -acceptssl
+  appscan.sh prepare -es -sco -acceptssl -n sast.irx
 else
   echo "AppScan Prepare.";
-  appscan.sh prepare -es -acceptssl
+  appscan.sh prepare -es -acceptssl -n sast.irx
 fi
 
 # Authenticate in ASOC
@@ -35,7 +35,7 @@ if [ -z "$asocToken" ]; then
     exit 1
 fi
 
-irxFile=$(ls -t *.irx | head -n1)
+irxFile=$(ls -t sast.irx | head -n1)
 # Upload IRX file
 if [ -f "$irxFile" ]; then    
     irxFileId=$(curl -k -s -X 'POST' "https://$serviceUrl/api/v4/FileUpload" -H 'accept:application/json' -H "Authorization:Bearer $asocToken" -H 'Content-Type:multipart/form-data' -F "uploadedFile=@$irxFile" | grep -oP '(?<="FileId":\ ")[^"]*');
@@ -46,7 +46,7 @@ else
 fi
 
 # Scan start
-scanId=$(curl -s -k -X 'POST' "https://$serviceUrl/api/v4/Scans/Sast" -H 'accept:application/json' -H "Authorization:Bearer $asocToken" -H 'Content-Type:application/json' -d '{"AppId":"'"$appId"'","ApplicationFileId":"'"$irxFileId"'","ClientType":"user-site","EnableMailNotification":false,"Execute":true,"Locale":"en","Personal":false,"ScanName":"'"SAST $scanName $irxFile"'","EnablementMessage":"","FullyAutomatic":true}'| jq -r '. | {Id} | join(" ")');
+scanId=$(curl -s -k -X 'POST' "https://$serviceUrl/api/v4/Scans/Sast" -H 'accept:application/json' -H "Authorization:Bearer $asocToken" -H 'Content-Type:application/json' -d '{"AppId":"'"$appId"'","ApplicationFileId":"'"$irxFileId"'","ClientType":"user-site","EnableMailNotification":false,"Execute":true,"Locale":"en","Personal":false,"ScanName":"'"$scanName"'","EnablementMessage":"","FullyAutomatic":true}'| jq -r '. | {Id} | join(" ")');
 echo "Scan started, scanId $scanId";
 
 echo "The scan name is $scanName and scanId is $scanId"

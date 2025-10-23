@@ -18,18 +18,18 @@ fi
 
 if [ "${considerPkgManager,,}" = "no" ]; then
     echo "Package manager being disregarded (-nc parameter)."
-    appscan.sh prepare_sca -nc
+    appscan.sh prepare_sca -nc -n sca.irx
 else
     echo "Package manager being considered (default behavior)."
-    appscan.sh prepare_sca
+    appscan.sh prepare_sca -n sca.irx
 fi
 
 # Authenticate in ASOC
 appscan.sh api_login -u $asocApiKeyId -P $asocApiKeySecret -persist
 
 # Upload IRX file to ASOC to be analyzed and receive scanId
-scanName=$CI_PROJECT_NAME-$CI_JOB_ID
-appscan.sh queue_analysis -a $appId -n $scanName > output.txt
+# scanName=$CI_PROJECT_NAME-$CI_JOB_ID
+appscan.sh queue_analysis -a $appId -n $scanName -f sca.irx > output.txt
 scanId=$(sed -n '3p' output.txt)
 echo "$scanId" > scanId.txt
 echo "The scan name is $scanName and scanId is $scanId"
